@@ -1,0 +1,158 @@
+<?php
+
+/**
+ * Implements hook_permission().
+ */
+function commerce_taxcloud_permission() {
+  return array(
+    'administer taxcloud settings' => array(
+      'title' => t('Administer TaxCloud settings'),
+      'description' => t('Access to edit TaxCloud account settings.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_taxcloud_menu() {
+  $items['admin/commerce/config/taxcloud'] = array(
+    'title' => 'Tax Cloud Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments'=> array('commerce_taxcloud_admin_form'),
+    'access arguments' => array('administer taxcloud settings'),
+    'file' => 'commerce_taxcloud.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+function commerce_taxcloud_communication($customer_address, $products, $cartid) {
+  $client = new SoapClient("https://api.taxcloud.net/1.0/TaxCloud.asmx?wsdl");
+
+  $destination = new Address();
+  $destination->setAddress1($customer_address['thoroughfare']);
+
+  if (isset($customer_address['premise'])) {
+    $destination->setAddress2($customer_address['premise']);
+  }
+
+  $destination->setCity($customer_address['locality']);
+  $destination->setState($customer_address['administrative_area']);
+
+  $zip = explode('-', $customer_address['postal_code']);
+  $destination->setZip5($zip[0]);
+  if (isset($zip[1])) {
+    $destination->setZip4($zip[1]);
+  }
+
+  $params = array(
+    'uspsUserID' => variable_get('commerce_taxcloud_usps_id'),
+    'address1' => $destination->getAddress1(),
+    'address2' => $destination->getAddress2(),
+    'city' => $destination->getCity(),
+    'state' => $destination->getState(),
+    'zip5' => $destination->getZip5(),
+    'zip4' => $destination->getZip4(),
+  );
+
+  $verifyAddr = $client->verifyAddress($params);
+
+  if ($verifyAddr->VerifyAddressResult->ErrNumber == 0) {
+    $destination->setAddress1($verifyAddr->VerifyAddressResult->Address1);
+    if (isset($verifyAddr->VerifyAddressResult->Address2)) {
+      $destination->setAddress2($verifyAddr->VerifyAddressResult->Address2);
+    }
+    $destination->setCity($verifyAddr->VerifyAddressResult->City);
+    $destination->setState($verifyAddr->VerifyAddressResult->State);
+    $destination->setZip5($verifyAddr->VerifyAddressResult->Zip5);
+    $destination->setZip4($verifyAddr->VerifyAddressResult->Zip4);
+  }
+
+  $origin = new Address();
+  $origin->setAddress1(variable_get('commerce_taxcloud_address1'));
+
+  $addr2 = variable_get('commerce_taxcloud_address2');
+  if (isset($addr2)) {
+    $origin->setAddress2($addr2);
+  }
+
+  $origin->setCity(variable_get('commerce_taxcloud_city'));
+  $origin->setState(variable_get('commerce_taxcloud_state'));
+
+  $zip = explode('-', variable_get('commerce_taxcloud_zip'));
+  $origin->setZip5($zip[0]);
+  $origin->setZip4($zip[1]);
+
+  foreach ($products as $k => $product) {
+    $cartItem = new CartItem();
+
+    $cartItem->setItemID($product['productid']);
+    $cartItem->setIndex($product['cart_item_index']);
+    $cartItem->setTIC(variable_get('commerce_taxcloud_tic_id', '00000'));
+    $cartItem->setPrice($product['price']);
+    $cartItem->setQty($product['qty']);
+
+    $cartItems[$k] = $cartItem;
+  }
+
+  global $user;
+
+  $params = array(
+    'apiLoginID' => variable_get('commerce_taxcloud_api_id'),
+    'apiKey' => variable_get('commerce_taxcloud_api_key'),
+    'customerID' => $user->uid,
+    'cartID' => $cartid,
+    'cartItems' => $cartItems,
+    'origin' => $origin,
+    'destination' => $destination,
+    'deliveredBySeller' => FALSE,
+  );
+
+  $lookupResponse = $client->lookup($params);
+
+  $taxes = array();
+  $cart_items = $lookupResponse->LookupResult->CartItemsResponse->CartItemResponse;
+  if (is_array($cart_items)) {
+    foreach ($cart_items as $cart_item) {
+      $taxes[$cart_item->CartItemIndex] = $cart_item->TaxAmount;
+    }
+  }
+  elseif (is_object($cart_items)) {
+    $taxes[$cart_items->CartItemIndex] = $cart_items->TaxAmount;
+  }
+
+  return $taxes;
+}
+
+function commerce_taxcloud_authorized_captured($cartid, $products, $orderid) {
+  $client = new SoapClient("https://api.taxcloud.net/1.0/TaxCloud.asmx?wsdl");
+
+  foreach ($products as $k => $product) {
+    $cartItem = new CartItem();
+
+    $cartItem->setItemID($product['productid']);
+    $cartItem->setIndex($product['cart_item_index']);
+    $cartItem->setTIC(variable_get('commerce_taxcloud_tic_id', '00000'));
+    $cartItem->setPrice($product['price']);
+    $cartItem->setQty($product['qty']);
+
+    $cartItems[$k] = $cartItem;
+  }
+
+  global $user;
+
+  $params = array(
+    'apiLoginID' => variable_get('commerce_taxcloud_api_id'),
+    'apiKey' => variable_get('commerce_taxcloud_api_key'),
+    'customerID' => $user->uid,
+    'cartID' => $cartid,
+    'cartItems' => $cartItems,
+    'orderID' => $orderid,
+    'dateAuthorized' => time(),
+    'dateCaptured' => time(),
+  );
+
+  $authResponse = $client->AuthorizedWithCapture($params);
+}

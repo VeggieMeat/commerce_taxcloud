@@ -1,0 +1,7 @@
+name = Commerce TaxCloud
+description = Interface between Drupal Commerce and TaxCloud service to retrieve tax rates
+package = Commerce (contrib)
+core = 7.x
+
+; Files
+files[] = classes.php
