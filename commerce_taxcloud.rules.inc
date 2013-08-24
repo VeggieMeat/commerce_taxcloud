@@ -105,15 +105,17 @@ function commerce_taxcloud_action_authorize_capture($order) {
 
   foreach ($order->commerce_line_items['und'] as $li) {
     $item = commerce_line_item_load($li['line_item_id']);
+    if ($item->type == 'product') {
 
-    $product = array();
+      $product = array();
 
-    $product['productid'] = $item->data['context']['product_ids'][0];
-    $product['price'] = $item->commerce_unit_price[LANGUAGE_NONE][0]['amount'] / 100;
-    $product['qty'] = $item->quantity;
-    $product['cart_item_index'] = $item->line_item_id;
+      $product['productid'] = $item->data['context']['product_ids'][0];
+      $product['price'] = $item->commerce_unit_price[LANGUAGE_NONE][0]['amount'] / 100;
+      $product['qty'] = $item->quantity;
+      $product['cart_item_index'] = $item->line_item_id;
 
-    $products[] = $product;
+      $products[] = $product;
+    }
   }
 
   $cartid = $order->order_id;
