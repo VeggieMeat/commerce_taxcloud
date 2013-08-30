@@ -11,7 +11,7 @@ function commerce_taxcloud_requirements() {
 
   if (!$info['loaded']) {
     $requirements['commerce_taxcloud'] = array(
-      'severity' => REQUIREMENT_ERROR,
+      'severity' => REQUIREMENT_WARNING,
       'title' => $t('PHP-TaxCloud Library'),
       'value' => $t('Failed to load the PHP-Taxcloud library'),
       'description' => $t('Please make sure the PHP-TaxCloud library is installed in the libraries directory'),
@@ -19,9 +19,11 @@ function commerce_taxcloud_requirements() {
   }
   else {
     $requirements['commerce_taxcloud'] = array(
-      'serverity' => REQUIREMENT_INFO,
+      'serverity' => REQUIREMENT_OK,
       'title' => $t('PHP-TaxCloud Library'),
       'value' => $t('OK'),
     );
   }
+
+  return $requirements;
 }
