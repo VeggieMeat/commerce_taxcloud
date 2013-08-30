@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * Implements hook_requirements().
+ */
+function commerce_taxcloud_requirements() {
+  $t = get_t();
+  $requirements = array();
+
+  $info = libraries_load('php-taxcloud');
+
+  if (!$info['loaded']) {
+    $requirements['commerce_taxcloud'] = array(
+      'severity' => REQUIREMENT_ERROR,
+      'title' => $t('PHP-TaxCloud Library'),
+      'value' => $t('Failed to load the PHP-Taxcloud library'),
+      'description' => $t('Please make sure the PHP-TaxCloud library is installed in the libraries directory'),
+    );
+  }
+  else {
+    $requirements['commerce_taxcloud'] = array(
+      'serverity' => REQUIREMENT_INFO,
+      'title' => $t('PHP-TaxCloud Library'),
+      'value' => $t('OK'),
+    );
+  }
+}

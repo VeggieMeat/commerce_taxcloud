@@ -1,6 +1,25 @@
 <?php
 
 /**
+ * Implements hook_libraries_info().
+ */
+function commerce_taxcloud_libraries_info() {
+  $libraries['php-taxcloud'] = array(
+    'name' => 'PHP-TaxCloud',
+    'vendor url' => 'https://github.com/VeggieMeat/php-taxcloud',
+    'download url' => 'https://github.com/VeggieMeat/php-taxcloud/archive/master.tar.gz',
+    'path' => 'lib',
+    'files' => array(
+      'php' => array(
+        'php-taxcloud.php',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
  * Implements hook_permission().
  */
 function commerce_taxcloud_permission() {
@@ -19,7 +38,7 @@ function commerce_taxcloud_menu() {
   $items['admin/commerce/config/taxcloud'] = array(
     'title' => 'Tax Cloud Settings',
     'page callback' => 'drupal_get_form',
-    'page arguments'=> array('commerce_taxcloud_admin_form'),
+    'page arguments' => array('commerce_taxcloud_admin_form'),
     'access arguments' => array('administer taxcloud settings'),
     'file' => 'commerce_taxcloud.admin.inc',
     'type' => MENU_NORMAL_ITEM,
