@@ -27,3 +27,18 @@ function commerce_taxcloud_requirements() {
 
   return $requirements;
 }
+
+/**
+ * Implements hook_uninstall()
+ */
+function commerce_taxcloud_uninstall() {
+  variable_del('commerce_taxcloud_api_id');
+  variable_del('commerce_taxcloud_api_key');
+  variable_del('commerce_taxcloud_usps_id');
+  variable_del('commerce_taxcloud_address1');
+  variable_del('commerce_taxcloud_address2');
+  variable_del('commerce_taxcloud_city');
+  variable_del('commerce_taxcloud_state');
+  variable_del('commerce_taxcloud_zip');
+  variable_del('commerce_taxcloud_enable');
+}
