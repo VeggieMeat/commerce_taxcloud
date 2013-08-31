@@ -182,3 +182,17 @@ function commerce_taxcloud_authorized_captured($cartid, $products, $orderid) {
 
   $authResponse = $client->AuthorizedWithCapture($authcap);
 }
+
+/**
+ * Implements hook_commerce_tax_type_info().
+ */
+function commerce_taxcloud_commerce_tax_type_info() {
+  $tax_types = array();
+
+  $tax_types['taxcloud_sales_tax'] = array(
+    'title' => t('TaxCloud Sales Tax'),
+    'display_title' => t('Sales tax'),
+  );
+
+  return $tax_types;
+}
