@@ -3,5 +3,5 @@ description = Interface between Drupal Commerce and TaxCloud service to retrieve
 package = Commerce (contrib)
 core = 7.x
 
-; Files
-files[] = classes.php
+; Dependencies
+dependencies[] = libraries
