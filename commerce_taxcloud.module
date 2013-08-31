@@ -192,6 +192,8 @@ function commerce_taxcloud_commerce_tax_type_info() {
   $tax_types['taxcloud_sales_tax'] = array(
     'title' => t('TaxCloud Sales Tax'),
     'display_title' => t('Sales tax'),
+    'description' => t('Calculate sales tax via TaxCloud API'),
+    'rule' => NULL,
   );
 
   return $tax_types;
