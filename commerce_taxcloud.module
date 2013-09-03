@@ -281,7 +281,7 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
   // call must contact TaxCloud and get the appropriate taxes. Subsequent calls
   // will just return the value from the cached array.
   $order_info = &drupal_static(__FUNCTION__ . '_order_' . $line_item_wrapper->order_id->value());
-  if (!isset($order)) {
+  if (!isset($order_info)) {
     $order_info['order_id'] = $line_item_wrapper->order_id->value();
 
     $order = commerce_order_load($order_info['order_id']);
