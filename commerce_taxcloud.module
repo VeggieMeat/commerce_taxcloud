@@ -267,6 +267,9 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
   // We're going to use a lot of caching, because there could potentially be
   // an exponentially metric ton of calls to this.
   //
+  // @TODO Add a means of caching the total quantity of line items so that we
+  // don't make an API call on every page load.
+  //
   // So first, we're going to cache the API client.
   $client = &drupal_static(__FUNCTION__ . '_client');
   if (!isset($client)) {
