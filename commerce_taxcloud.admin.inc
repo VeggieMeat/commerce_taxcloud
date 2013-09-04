@@ -93,6 +93,9 @@ function commerce_taxcloud_admin_form($form, &$form_state) {
 }
 
 function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
+  $field_name = 'commerce_taxcloud_tic';
+  $field = field_info_field($field_name);
+
   foreach (commerce_line_item_types() as $type => $line_item_type) {
     $instance[$type] = field_info_instance('commerce_line_item', 'commerce_taxcloud_tic', $type);
     $enabled[$type] = (!empty($instance[$type]));
@@ -113,6 +116,9 @@ function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
       '#title' => t('Taxability Information Code'),
       '#description' => t('Default TIC for this line item type.'),
       '#options' => commerce_taxcloud_tic_options(),
+      '#default_value' => commerce_taxcloud_tic_options_default($type),
     );
   }
+
+  return $form;
 }

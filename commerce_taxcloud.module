@@ -398,7 +398,7 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
  * @param string $label
  *   The label of the field instance.
  */
-function commerce_taxcloud_create_instance($field_name, $field_type, $required, $entity_type, $bundle, $label, $description = NULL, $weight = 0) {
+function commerce_taxcloud_create_instance($field_name, $field_type, $required, $entity_type, $bundle, $label, $default_value, $description = NULL, $weight = 0) {
   // Add the specified TIC field to the entity bundle.
   $field = field_info_field($field_name);
   $instance = field_info_instance($entity_type, $field_name, $bundle);
@@ -431,7 +431,7 @@ function commerce_taxcloud_create_instance($field_name, $field_type, $required, 
       'settings' => array(),
       'display' => array(),
       'description' => $description,
-      'default_value' => commerce_taxcloud_tic_default_value($entity_type, $bundle),
+      'default_value' => $default_value,
     );
 
     if ($field_type == 'list_text') {
@@ -487,9 +487,29 @@ function commerce_taxcloud_tic_options() {
   $tics['20070'] = 'School Supplies';
   $tics['20150'] = 'Disaster preparedness supplies';
 
+  // Let's make the TIC part of the label.
+  foreach ($tics as $tic => $label) {
+    $tics[$tic] = $label . ' (TIC: ' . $tic . ')';
+  }
+
   ksort($tics);
 
   return $tics;
+}
+
+/**
+ * Get default value for Taxability Information Codes field.
+ */
+function commerce_taxcloud_tic_options_default($type) {
+  $instance[$type] = field_info_instance('commerce_line_item', 'commerce_taxcloud_tic', $type);
+
+  if (empty($instance[$type])) {
+    $tics = commerce_taxcloud_tic_options();
+    $return = array_slice($tics, 0, 1, TRUE);
+  }
+  else {
+    $return = $instance[$type]['default_value'];
+  }
 }
 
 /**
