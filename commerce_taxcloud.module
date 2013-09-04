@@ -374,3 +374,117 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
 
   return $order_info['tax_amount'][$line_item_wrapper->line_item_id->value()];
 }
+
+/**
+ * Creates a required instance of a Taxability Information Code (TIC) field on
+ * the specified bundle.
+ *
+ * @param string $field_name
+ *   The name of the field; if it already exists, a new instance of the
+ *   existing field will be created.
+ * @param string $entity_type
+ *   The type of entity the field instance will be attached to.
+ * @param string $bundle
+ *   The bundle name of the entity the field instance will be attached to.
+ * @param string $label
+ *   The label of the field instance.
+ */
+function commerce_taxcloud_create_instance($field_name, $field_type, $required, $entity_type, $bundle, $label, $description = NULL, $weight = 0) {
+  // Add the specified TIC field to the entity bundle.
+  $field = field_info_field($field_name);
+  $instance = field_info_instance($entity_type, $field_name, $bundle);
+
+  // If the field doesn't exist, create it.
+  if (empty($field)) {
+    $field = array(
+      'field_name' => $field_name,
+      'type' => $field_type,
+      'cardinality' => 1,
+      'entity_types' => array($entity_type),
+      'translatable' => FALSE,
+      'locked' => FALSE,
+    );
+    if ($field_type == 'list_text') {
+      $field['settings'] = array(
+        'allowed_values_function' => 'commerce_taxcloud_tic_options',
+      );
+    }
+    $field = field_create_field($field);
+  }
+
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'bundle' => $bundle,
+      'label' => $label,
+      'required' => $required,
+      'settings' => array(),
+      'display' => array(),
+      'description' => $description,
+      'default_value' => commerce_taxcloud_tic_default_value($entity_type, $bundle),
+    );
+
+    if ($field_type == 'list_text') {
+      $instance['widget'] = array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(),
+        'type' => 'options_select',
+        'weight' => 0,
+      );
+    }
+
+    $entity_info = entity_get_info($entity_type);
+    $entity_info['view modes']['default'] = array();
+
+    field_create_instance($instance);
+  }
+}
+
+/**
+ * Get Taxability Information Codes from TaxCloud.
+ *
+ * @return array
+ *   Keyed by TIC.
+ */
+function commerce_taxcloud_get_tics() {
+  $client = &drupal_static(__FUNCTION__ . '_client');
+  if (!isset($client)) {
+    if (!class_exists('\TaxCloud\Client')) {
+      libraries_load('php-taxcloud');
+    }
+
+    $client = new \TaxCloud\Client();
+  }
+
+  $return = &drupal_static(__FUNCTION__);
+  if (!isset($return)) {
+    $return = $client->GetTICs(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'));
+  }
+
+  return $return;
+}
+
+/**
+ * Set options for Taxability Information Codes field.
+ */
+function commerce_taxcloud_tic_options() {
+  $tics = commerce_taxcloud_get_tics();
+
+  // TaxCloud's API currently does not return some TICs.
+  $tics['00000'] = 'General';
+  $tics['20070'] = 'School Supplies';
+  $tics['20150'] = 'Disaster preparedness supplies';
+
+  ksort($tics);
+
+  return $tics;
+}
+
+/**
+ * Ensure a Taxability Information Codes field is on a line item type bundle.
+ */
+function commerce_taxcloud_configure_line_item_type($type) {
+  commerce_taxcloud_create_instance('commerce_taxcloud_tic', 'list_text', TRUE, 'commerce_line_item', $type, t('TIC'), t('Taxability Information Code'));
+}

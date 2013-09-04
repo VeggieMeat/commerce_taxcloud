@@ -3,8 +3,9 @@
 /**
  * Generates administrative form.
  */
-function commerce_taxcloud_admin_form() {
-  $form = array();
+function commerce_taxcloud_admin_form($form, &$form_state) {
+  $field_name = 'commerce_taxcloud_tic';
+  $field = field_info_field($field_name);
 
   $form['commerce_taxcloud_api_id'] = array(
     '#type' => 'textfield',
@@ -88,21 +89,16 @@ function commerce_taxcloud_admin_form() {
     '#required' => TRUE,
   );
 
-  $form['commerce_taxcloud_enable'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable?'),
-    '#default_value' => variable_get('commerce_taxcloud_enable', 0),
-    '#states' => array(
-      'enabled' => array(
-        ':input[name="commerce_taxcloud_api_id"]' => array('filled' => TRUE),
-        ':input[name="commerce_taxcloud_api_key"]' => array('filled' => TRUE),
-        ':input[name="commerce_taxcloud_address1"]' => array('filled' => TRUE),
-        ':input[name="commerce_taxcloud_city"]' => array('filled' => TRUE),
-        ':input[name="commerce_taxcloud_state"]' => array('filled' => TRUE),
-        ':input[name="commerce_taxcloud_zip"]' => array('filled' => TRUE),
-      ),
-    ),
-  );
+  foreach(commerce_line_item_types() as $type => $line_item_type) {
+    $instance[$type] = field_info_instance('commerce_line_item', 'commerce_taxcloud_tic', $type);
+    $enabled[$type] = (!empty($instance[$type]));
 
-  return system_settings_form($form);
+    $form['line_item_types'][$type] = array(
+      '#type' => 'checkbox',
+      '#default_value' => $enabled[$type],
+      '#title' => t('@name (@machine_name)', array('@name' => $line_item_type['name'], '@machine_name' => $type)),
+    );
+  }
+
+  return $form;
 }
