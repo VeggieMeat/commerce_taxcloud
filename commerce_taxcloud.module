@@ -35,13 +35,22 @@ function commerce_taxcloud_permission() {
  * Implements hook_menu().
  */
 function commerce_taxcloud_menu() {
-  $items['admin/commerce/config/taxcloud'] = array(
-    'title' => 'Tax Cloud Settings',
+  $items['admin/commerce/config/taxes/taxcloud'] = array(
+    'title' => 'TaxCloud Settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_taxcloud_admin_form'),
     'access arguments' => array('administer taxcloud settings'),
     'file' => 'commerce_taxcloud.admin.inc',
     'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['admin/commerce/config/taxes/taxcloud/line-items'] = array(
+    'title' => 'TaxCloud Line Item Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_taxcloud_admin_line_item_form'),
+    'access arguments' => array('administer taxcloud settings'),
+    'file' => 'commerce_taxcloud.admin.inc',
+    'type' => MENU_LOCAL_TASK,
   );
 
   return $items;

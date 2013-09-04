@@ -89,16 +89,30 @@ function commerce_taxcloud_admin_form($form, &$form_state) {
     '#required' => TRUE,
   );
 
-  foreach(commerce_line_item_types() as $type => $line_item_type) {
+  return $form;
+}
+
+function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
+  foreach (commerce_line_item_types() as $type => $line_item_type) {
     $instance[$type] = field_info_instance('commerce_line_item', 'commerce_taxcloud_tic', $type);
     $enabled[$type] = (!empty($instance[$type]));
 
     $form['line_item_types'][$type] = array(
-      '#type' => 'checkbox',
-      '#default_value' => $enabled[$type],
+      '#type' => 'fieldset',
       '#title' => t('@name (@machine_name)', array('@name' => $line_item_type['name'], '@machine_name' => $type)),
     );
-  }
 
-  return $form;
+    $form['line_item_types'][$type]['enabled'] = array(
+      '#type' => 'checkbox',
+      '#default_value' => $enabled[$type],
+      '#title' => t('Enabled'),
+    );
+
+    $form['line_item_types'][$type]['default_tic'] = array(
+      '#type' => 'select',
+      '#title' => t('Taxability Information Code'),
+      '#description' => t('Default TIC for this line item type.'),
+      '#options' => commerce_taxcloud_tic_options(),
+    );
+  }
 }
