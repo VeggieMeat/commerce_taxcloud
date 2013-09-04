@@ -469,7 +469,8 @@ function commerce_taxcloud_get_tics() {
 
   $return = &drupal_static(__FUNCTION__);
   if (!isset($return)) {
-    $return = $client->GetTICs(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'));
+    $params = new \TaxCloud\GetTICs(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'));
+    $return = $client->GetTICs($params);
   }
 
   return $return;
