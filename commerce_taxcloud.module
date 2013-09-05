@@ -241,7 +241,6 @@ function commerce_taxcloud_commerce_tax_rate_info() {
  *   The tax price array or FALSE if the tax is already applied.
  */
 function commerce_taxcloud_sales_tax_calculate($tax_rate, $line_item_wrapper) {
-  watchdog('commerce_taxcloud', 'Calculation callback fired', array(), WATCHDOG_NOTICE);
   // By default, do not duplicate a tax that's already on the line item.
   if (!is_null($line_item_wrapper->commerce_unit_price->value()) &&
     !commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), $tax_rate['price_component'])) {
