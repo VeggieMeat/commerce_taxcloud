@@ -103,6 +103,8 @@ function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
   $field_name = 'commerce_taxcloud_tic';
   $field = field_info_field($field_name);
 
+  $form['#tree'] = TRUE;
+
   foreach (commerce_line_item_types() as $type => $line_item_type) {
     $instance[$type] = field_info_instance('commerce_line_item', 'commerce_taxcloud_tic', $type);
     $enabled[$type] = (!empty($instance[$type]));
@@ -159,15 +161,15 @@ function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
 
 function commerce_taxcloud_line_item_form_submit($form, &$form_state) {
   $form_state['commerce_taxcloud']['delete_instances'] = array();
-  foreach ($form_state['values']['line_item_types'] as $type) {
+  foreach ($form_state['values']['line_item_types'] as $type => $values) {
     $instance = field_info_instance('commerce_line_item', 'commerce_taxcloud_tic', $type);
 
-    if ($type['enabled'] && !$instance) {
-      commerce_taxcloud_configure_line_item_type($type, $tic);
-      drupal_set_message(t('TaxCloud has been enabled on the %type line item type with a default Taxability Information Code of %tic.', array('%type' => $type, '%tic' => $tic)));
+    if ($values['enabled'] && !$instance) {
+      commerce_taxcloud_configure_line_item_type($type, $values['default_tic']);
+      drupal_set_message(t('TaxCloud has been enabled on the %type line item type with a default Taxability Information Code of %tic.', array('%type' => $type, '%tic' => $values['default_tic'])));
     }
 
-    elseif ($instance && !$type['enabled']) {
+    elseif ($instance && !$values['enabled']) {
       if (empty($form_state['values']['confirmation'])) {
         $form_state['commerce_taxcloud']['delete_instances'][] = $type;
         $form_state['rebuild'] = TRUE;

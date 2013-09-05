@@ -431,7 +431,7 @@ function commerce_taxcloud_create_instance($field_name, $field_type, $required, 
       'settings' => array(),
       'display' => array(),
       'description' => $description,
-      'default_value' => $default_value,
+      'default_value' => array(array('value' => $default_value)),
     );
 
     if ($field_type == 'list_text') {
@@ -508,8 +508,10 @@ function commerce_taxcloud_tic_options_default($type) {
     $return = array_slice($tics, 0, 1, TRUE);
   }
   else {
-    $return = $instance[$type]['default_value'];
+    $return = $instance[$type]['default_value'][0]['value'];
   }
+
+  return $return;
 }
 
 /**
