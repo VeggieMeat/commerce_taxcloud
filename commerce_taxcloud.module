@@ -302,6 +302,10 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
 
     $shipping_address = $order_wrapper->commerce_customer_shipping->value() ? $order_wrapper->commerce_customer_shipping->value() : $order_wrapper->commerce_customer_billing->value();
     $shipping_address_wrapper = entity_metadata_wrapper('commerce_customer_profile', $shipping_address);
+    
+    if (!isset($shipping_address_wrapper->commerce_customer_address)) {
+      return 0;
+    }
 
     $zip = explode('-', $shipping_address_wrapper->commerce_customer_address->postal_code->value());
     if (isset($zip[1])) {
@@ -384,6 +388,9 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
   
   if (isset($order_info['tax_amount'][$line_item_wrapper->line_item_id->value()])) {
     return $order_info['tax_amount'][$line_item_wrapper->line_item_id->value()];
+  }
+  else {
+    return 0;
   }
 }
 
