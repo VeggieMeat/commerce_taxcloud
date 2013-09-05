@@ -131,7 +131,7 @@ function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
 
   if (!empty($form_state['commerce_taxcloud']['delete_instances'])) {
     $type_plural = format_plural(count($form_state['commerce_taxcloud']['delete_instances']), 'type', 'types');
-    $affirmation = t('I understand that TaxCloud will be permanently removed from the line item $type_plural %line_item_types.',
+    $affirmation = t('I understand that TaxCloud will be permanently removed from the line item @type_plural %line_item_types.',
       array(
         '@type_plural' => $type_plural,
         '%line_item_types' => implode(', ', $form_state['commerce_taxcloud']['delete_instances']),
@@ -159,7 +159,7 @@ function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
   return $form;
 }
 
-function commerce_taxcloud_line_item_form_submit($form, &$form_state) {
+function commerce_taxcloud_admin_line_item_form_submit($form, &$form_state) {
   $form_state['commerce_taxcloud']['delete_instances'] = array();
   foreach ($form_state['values']['line_item_types'] as $type => $values) {
     $instance = field_info_instance('commerce_line_item', 'commerce_taxcloud_tic', $type);

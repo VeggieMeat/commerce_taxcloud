@@ -528,7 +528,7 @@ function commerce_taxcloud_tic_init($type, $tic) {
   $line_items = commerce_line_item_load_multiple(array(), array('type' => $type));
   foreach ($line_items as $line_item) {
     $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
-    $wrapper->commerce_taxcloud_tic = $tic;
-    $wrapper->save();
+    $line_item_wrapper->commerce_taxcloud_tic = $tic;
+    $line_item_wrapper->save();
   }
 }
