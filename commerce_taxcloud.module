@@ -356,19 +356,16 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
     $order_info['cart_items'] = array();
     // Loop over line items to send to TaxCloud for tax calculation.
     foreach ($order_wrapper->commerce_line_items as $line_item) {
-      $current_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
-      if (!$current_wrapper->commerce_taxcloud_tic) {
-        continue;
+      if (isset($line_item->commerce_taxcloud_tic)) {
+        $cart_item = new \TaxCloud\CartItem(
+          $line_item->line_item_id->value(),
+          $line_item->line_item_label->value(),
+          $line_item->commerce_taxcloud_tic->value(),
+          $line_item->commerce_unit_price->value(),
+          $line_item->quantity->value()
+        );
+        $order_info['cart_items'][] = $cart_item;
       }
-      $tic = $current_wrapper->commerce_taxcloud_tic->value();
-      $cart_item = new \TaxCloud\CartItem(
-        $line_item->line_item_id->value(),
-        $line_item->line_item_label->value(),
-        $tic,
-        $line_item->commerce_unit_price->value(),
-        $line_item->quantity->value()
-      );
-      $order_info['cart_items'][] = $cart_item;
     }
 
     $lookup = new \TaxCloud\Lookup(
