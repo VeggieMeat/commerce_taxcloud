@@ -166,6 +166,7 @@ function commerce_taxcloud_line_item_form_submit($form, &$form_state) {
 
     if ($values['enabled'] && !$instance) {
       commerce_taxcloud_configure_line_item_type($type, $values['default_tic']);
+      commerce_taxcloud_tic_init($type, $values['default_tic']);
       drupal_set_message(t('TaxCloud has been enabled on the %type line item type with a default Taxability Information Code of %tic.', array('%type' => $type, '%tic' => $values['default_tic'])));
     }
 
