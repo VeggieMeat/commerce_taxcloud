@@ -515,6 +515,6 @@ function commerce_taxcloud_tic_options_default($type) {
 /**
  * Ensure a Taxability Information Codes field is on a line item type bundle.
  */
-function commerce_taxcloud_configure_line_item_type($type) {
-  commerce_taxcloud_create_instance('commerce_taxcloud_tic', 'list_text', TRUE, 'commerce_line_item', $type, t('TIC'), t('Taxability Information Code'));
+function commerce_taxcloud_configure_line_item_type($type, $tic) {
+  commerce_taxcloud_create_instance('commerce_taxcloud_tic', 'list_text', TRUE, 'commerce_line_item', $type, t('TIC'), $tic, t('Taxability Information Code'));
 }

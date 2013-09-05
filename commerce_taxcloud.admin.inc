@@ -31,15 +31,6 @@ function commerce_taxcloud_admin_form($form, &$form_state) {
     '#size' => 60,
     '#maxlength' => 255,
   );
-  $form['commerce_taxcloud_tic_id'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Default TIC (Taxability Information Code)'),
-    '#description' => t('You can find this at https://taxcloud.net/account/tics/'),
-    '#default_value' => variable_get('commerce_taxcloud_tic_id', '00000'),
-    '#size' => 60,
-    '#maxlength' => 255,
-    '#required' => TRUE,
-  );
 
   $form['commerce_taxcloud_store'] = array(
     '#type' => 'fieldset',
@@ -89,7 +80,23 @@ function commerce_taxcloud_admin_form($form, &$form_state) {
     '#required' => TRUE,
   );
 
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
   return $form;
+}
+
+function commerce_taxcloud_admin_form_submit($form, &$form_state) {
+  variable_set('commerce_taxcloud_api_id', $form_state['values']['commerce_taxcloud_api_id']);
+  variable_set('commerce_taxcloud_api_key', $form_state['values']['commerce_taxcloud_api_key']);
+  variable_set('commerce_taxcloud_usps_id', $form_state['values']['commerce_taxcloud_usps_id']);
+  variable_set('commerce_taxcloud_address1', $form_state['values']['commerce_taxcloud_store']['commerce_taxcloud_address1']);
+  variable_set('commerce_taxcloud_address2', $form_state['values']['commerce_taxcloud_store']['commerce_taxcloud_address2']);
+  variable_set('commerce_taxcloud_city', $form_state['values']['commerce_taxcloud_store']['commerce_taxcloud_city']);
+  variable_set('commerce_taxcloud_state', $form_state['values']['commerce_taxcloud_store']['commerce_taxcloud_state']);
+  variable_set('commerce_taxcloud_zip', $form_state['values']['commerce_taxcloud_store']['commerce_taxcloud_zip']);
 }
 
 function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
@@ -120,5 +127,55 @@ function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
     );
   }
 
+  if (!empty($form_state['commerce_taxcloud']['delete_instances'])) {
+    $type_plural = format_plural(count($form_state['commerce_taxcloud']['delete_instances']), 'type', 'types');
+    $affirmation = t('I understand that TaxCloud will be permanently removed from the line item $type_plural %line_item_types.',
+      array(
+        '@type_plural' => $type_plural,
+        '%line_item_types' => implode(', ', $form_state['commerce_taxcloud']['delete_instances']),
+      )
+    );
+  }
+
+  $form['confirmation'] = array(
+    '#type' => 'checkbox',
+    '#title' => !empty($affirmation) ? $affirmation : '',
+    '#default_value' => FALSE,
+    '#access' => FALSE,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
+  if (!empty($form_state['commerce_taxcloud']['delete_instances'])) {
+    $form['confirmation']['#access'] = TRUE;
+    drupal_set_message(t('You must click the confirmation checkbox to confirm that you want to delete TaxCloud data.'), 'warning');
+  }
+
   return $form;
+}
+
+function commerce_taxcloud_line_item_form_submit($form, &$form_state) {
+  $form_state['commerce_taxcloud']['delete_instances'] = array();
+  foreach ($form_state['values']['line_item_types'] as $type) {
+    $instance = field_info_instance('commerce_line_item', 'commerce_taxcloud_tic', $type);
+
+    if ($type['enabled'] && !$instance) {
+      commerce_taxcloud_configure_line_item_type($type, $tic);
+      drupal_set_message(t('TaxCloud has been enabled on the %type line item type with a default Taxability Information Code of %tic.', array('%type' => $type, '%tic' => $tic)));
+    }
+
+    elseif ($instance && !$type['enabled']) {
+      if (empty($form_state['values']['confirmation'])) {
+        $form_state['commerce_taxcloud']['delete_instances'][] = $type;
+        $form_state['rebuild'] = TRUE;
+      }
+      else {
+        field_delete_instance($instance);
+        drupal_set_message(t('TaxCloud has been disabled on the %type line item type.', array('%type' => $type)));
+      }
+    }
+  }
 }
