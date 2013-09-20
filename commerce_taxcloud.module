@@ -391,11 +391,6 @@ function commerce_taxcloud_get_tics() {
 function commerce_taxcloud_tic_options() {
   $tics = commerce_taxcloud_get_tics();
 
-  // TaxCloud's API currently does not return some TICs.
-  $tics['00000'] = 'General';
-  $tics['20070'] = 'School Supplies';
-  $tics['20150'] = 'Disaster preparedness supplies';
-
   // Let's make the TIC part of the label.
   foreach ($tics as $tic => $label) {
     $tics[$tic] = $label . ' (TIC: ' . $tic . ')';
