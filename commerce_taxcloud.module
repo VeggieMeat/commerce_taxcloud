@@ -56,45 +56,9 @@ function commerce_taxcloud_menu() {
   return $items;
 }
 
-function commerce_taxcloud_authorized_captured($cartid, $products, $orderid) {
-  if (!class_exists('\TaxCloud\Client')) {
-    libraries_load('php-taxcloud');
-  }
-
-  $client = new \TaxCloud\Client();
-
-  foreach ($products as $k => $product) {
-    $cartItem = new \TaxCloud\CartItem();
-
-    $cartItem->setItemID($product['productid']);
-    $cartItem->setIndex($product['cart_item_index']);
-    // @TODO Set TIC per product type.
-    $cartItem->setTIC(variable_get('commerce_taxcloud_tic_id', '00000'));
-    $cartItem->setPrice($product['price']);
-    $cartItem->setQty($product['qty']);
-
-    $cartItems[$k] = $cartItem;
-  }
-
-  global $user;
-
-  $authcap = new \TaxCloud\AuthorizedWithCapture(
-    variable_get('commerce_taxcloud_api_id'),
-    variable_get('commerce_taxcloud_api_key'),
-    $user->uid,
-    $cartid,
-    $cartItems,
-    $orderid,
-    date("c"),
-    date("c")
-  );
-
-  $authResponse = $client->AuthorizedWithCapture($authcap);
-}
-
 /**
- *  * Implements hook_commerce_tax_type_info().
- *   */
+ * Implements hook_commerce_tax_type_info().
+ */
 function commerce_taxcloud_commerce_tax_type_info() {
   $tax_types = array();
 
