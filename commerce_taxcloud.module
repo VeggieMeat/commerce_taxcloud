@@ -462,6 +462,37 @@ function commerce_taxcloud_capture($order_id) {
 }
 
 /**
+ * Authorize and Capture a TaxCloud transaction simultaneously.
+ */
+function commerce_taxcloud_authorize_with_capture($order_wrapper) {
+  $order_id = $order_wrapper->order_id->value();
+
+  // We need the customer profile ID.
+  $shipping_address = $order_wrapper->commerce_customer_shipping->value() ? $order_wrapper->commerce_customer_shipping->value() : $order_wrapper->commerce_customer_billing->value();
+  $shipping_address_wrapper = entity_metadata_wrapper('commerce_customer_profile', $shipping_address);
+  $customer_id = $shipping_address_wrapper->customer_profile_id->value();
+
+  // Build a Cart Items array.
+  $cart_items = array();
+  foreach ($order_wrapper->commerce_line_items as $line_item) {
+    if (isset($line_item->commerce_taxcloud_tic)) {
+      $cart_item = new \TaxCloud\CartItem(
+        $line_item->line_item_id->value(),
+        $line_item->line_item_label->value(),
+        $line_item->commerce_taxcloud_tic->value(),
+        $line_item->commerce_unit_price->value(),
+        $line_item->quantity->value()
+      );
+      $cart_items[] = $cart_item;
+    }
+  }
+
+  $client = commerce_taxcloud_client();
+  $params = new \TaxCloud\AuthorizedWithCapture(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'), $customer_id, $order_id, $cart_items, $order_id, date("c"), date("c"));
+  $return = $client->Authorized($params);
+}
+
+/**
  * Set options for Taxability Information Codes field.
  */
 function commerce_taxcloud_tic_options() {
