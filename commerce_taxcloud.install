@@ -29,6 +29,15 @@ function commerce_taxcloud_requirements() {
 }
 
 /**
+ * Implements hook_schema().
+ */
+function commerce_taxcloud_schema() {
+  // Set up our cache table.
+  $schema['cache_commerce_taxcloud'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
+/**
  * Implements hook_uninstall()
  */
 function commerce_taxcloud_uninstall() {
