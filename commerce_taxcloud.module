@@ -157,25 +157,37 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
   // We're going to use a lot of caching, because there could potentially be
   // an exponentially metric ton of calls to this.
   //
-  // @TODO Add a means of caching the total quantity of line items so that we
-  // don't make an API call on every page load.
-  //
-  // Next, we're going to cache the order information. This way, only the first
-  // call must contact TaxCloud and get the appropriate taxes. Subsequent calls
-  // will just return the value from the cached array.
+  // We're going to cache the order information. This way, only the first call
+  // must contact TaxCloud and get the appropriate taxes. Subsequent calls will
+  // just return the value from the cached array.
   $order_info = &drupal_static(__FUNCTION__ . '_order_' . $line_item_wrapper->order_id->value());
   if (!isset($order_info)) {
-    $client = commerce_taxcloud_client();
-
     $order_info['order_id'] = $line_item_wrapper->order_id->value();
 
     $order = commerce_order_load($order_info['order_id']);
     $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+
+    // Bail out if total quantity of line items is unchanged.
+    // We don't want to hammer TaxCloud's service on a high traffic site.
+    if (isset($_SESSION['commerce_taxcloud_quantity'])) {
+      $cached_total_quantity = $_SESSION['commerce_taxcloud_quantity'];
+      $current_total_quantity = commerce_line_items_quantity($order_wrapper->commerce_line_items);
+
+      if ($cached_total_quantity == $current_total_quantity) {
+        return 0;
+      }
+      else {
+        $_SESSION['commerce_taxcloud_quantity'] = $current_total_quantity;
+      }
+    }
+
+    $client = commerce_taxcloud_client();
     $order_info['customer_id'] = $order_wrapper->uid->value();
 
     $shipping_address = $order_wrapper->commerce_customer_shipping->value() ? $order_wrapper->commerce_customer_shipping->value() : $order_wrapper->commerce_customer_billing->value();
     $shipping_address_wrapper = entity_metadata_wrapper('commerce_customer_profile', $shipping_address);
 
+    // Bail out if we don't have an address to use.
     if (!isset($shipping_address_wrapper->commerce_customer_address)) {
       return 0;
     }
