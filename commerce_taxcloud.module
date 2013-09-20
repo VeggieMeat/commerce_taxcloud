@@ -169,16 +169,14 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
 
     // Bail out if total quantity of line items is unchanged.
     // We don't want to hammer TaxCloud's service on a high traffic site.
-    if (isset($_SESSION['commerce_taxcloud_quantity'])) {
-      $cached_total_quantity = $_SESSION['commerce_taxcloud_quantity'];
-      $current_total_quantity = commerce_line_items_quantity($order_wrapper->commerce_line_items);
-
+    $current_total_quantity = commerce_line_items_quantity($order_wrapper->commerce_line_items);
+    if ($cached_total_quantity = cache_get('commerce_taxcloud_quantity' . '-' . $order_info['order_id'])) {
       if ($cached_total_quantity == $current_total_quantity) {
         return 0;
       }
-      else {
-        $_SESSION['commerce_taxcloud_quantity'] = $current_total_quantity;
-      }
+    }
+    else {
+      cache_set('commerce_taxcloud_quantity' . '-' . $order_info['order_id'], $current_total_quantity, 'cache');
     }
 
     $client = commerce_taxcloud_client();
