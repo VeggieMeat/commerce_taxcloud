@@ -4,7 +4,7 @@ API.
 
 -- REQUIREMENTS --
 
-PHP-TaxCloud library - https://github.com/VeggieMeat/php-taxcloud
+PHP-TaxCloud library - https://github.com/VMdoh/php-taxcloud
 
 TaxCloud API ID and API Key.
 
