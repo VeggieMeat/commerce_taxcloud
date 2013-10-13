@@ -37,6 +37,7 @@ function commerce_taxcloud_admin_form($form, &$form_state) {
     '#title' => t('Store Address'),
     '#collapsed' => FALSE,
     '#collapsible' => TRUE,
+    '#tree' => TRUE,
   );
   $form['commerce_taxcloud_store']['commerce_taxcloud_address1'] = array(
     '#type' => 'textfield',
