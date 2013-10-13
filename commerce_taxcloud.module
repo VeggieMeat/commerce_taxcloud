@@ -474,6 +474,11 @@ function commerce_taxcloud_tic_options() {
 
   // Let's make the TIC part of the label.
   foreach ($tics as $tic => $label) {
+    // Ensure that "0" becomes "00000"
+    if ($tic == 0) {
+      $tic = (string) '00000';
+    }
+    
     $tics[$tic] = $label . ' (TIC: ' . $tic . ')';
   }
 
