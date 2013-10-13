@@ -171,7 +171,7 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
     // We don't want to hammer TaxCloud's service on a high traffic site.
     $current_total_quantity = commerce_line_items_quantity($order_wrapper->commerce_line_items);
     if ($cached_total_quantity = cache_get('commerce_taxcloud_quantity' . '-' . $order_info['order_id'], 'cache_commerce_taxcloud')) {
-      if ($cached_total_quantity == $current_total_quantity) {
+      if ($cached_total_quantity->data == $current_total_quantity) {
         return 0;
       }
     }
@@ -214,15 +214,8 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
     $VerifyAddress = new \TaxCloud\VerifyAddress(variable_get('commerce_taxcloud_usps_id'), $destination);
     $verified_address = $client->VerifyAddress($VerifyAddress);
 
-    if ($verified_address->VerifyAddressResult->ErrNumber == 0) {
-      $destination->setAddress1($verified_address->VerifyAddressResult->Address1);
-      if (isset($verified_address->VerifyAddressResult->Address2)) {
-        $destination->setAddress2($verified_address->VerifyAddressResult->Address2);
-      }
-      $destination->setCity($verified_address->VerifyAddressResult->City);
-      $destination->setState($verified_address->VerifyAddressResult->State);
-      $destination->setZip5($verified_address->VerifyAddressResult->Zip5);
-      $destination->setZip4($verified_address->VerifyAddressResult->Zip4);
+    if ($verified_address->getVerifyAddressResult()->getErrNumber() == 0) {
+      $destination = $verified_address->getVerifyAddressResult()->getAddress();
     }
 
     $order_info['destination'] = $destination;
