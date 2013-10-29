@@ -381,7 +381,7 @@ function commerce_taxcloud_get_tics_by_group($group) {
   $return = &drupal_static(__FUNCTION__);
   if (!isset($return)) {
     $client = commerce_taxcloud_client();
-    $params = new \TaxCloud\GetTICsByGroup(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'), $group);
+    $params = new \TaxCloud\Request\GetTICsByGroup(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'), $group);
     $return = $client->GetTICByGroup($params);
   }
 
