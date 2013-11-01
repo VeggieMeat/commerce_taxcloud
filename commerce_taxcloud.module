@@ -218,6 +218,14 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
       $destination = $verified_address->getVerifyAddressResult()->getAddress();
     }
 
+    // Allow other modules to alter the destination address. Foe example, this
+    // might be used if shipping to multiple locations where different tax
+    // rules may apply, or overriding the destination for in-store pickup.
+    $context = array(
+      'line_item_wrapper' => clone $line_item_wrapper,
+    );
+    drupal_alter('commerce_taxcloud_destination', $destination, $context);
+
     $order_info['destination'] = $destination;
 
     // Set origin address.
@@ -230,6 +238,15 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
       $zip[0],
       $zip[1]
     );
+
+    // Allow other modules to alter the origin address. For example, this might
+    // be used if selling from multiple locations where different tax rules may
+    // apply, or for ensuring that the correct location is show for accounting
+    // purposes.
+    $context = array(
+      'line_item_wrapper' => clone $line_item_wrapper,
+    );
+    drupal_alter('commerce_taxcloud_origin', $origin, $context);
 
     $order_info['origin'] = $origin;
 
@@ -461,17 +478,17 @@ function commerce_taxcloud_authorize_with_capture($order_wrapper) {
 
 /**
  * Process returned items.
- * 
+ *
  * @param array $line_items
  *   An array of line item wrappers for line items being returned.
  *   Note: Line items do not necessarily need to be from the same order.
  */
 function commerce_taxcloud_returned($line_items) {
   $returns = array();
-  
+
   foreach ($line_items as $line_item) {
     $order_id = $line_item->order->order_id->value();
-    
+
     $cart_item = new \TaxCloud\CartItem(
       $line_item->line_item_id->value(),
       $line_item->line_item_label->value(),
@@ -481,7 +498,7 @@ function commerce_taxcloud_returned($line_items) {
     );
     $returns[$order_id][] = $cart_item;
   }
-  
+
   foreach ($returns as $order_id => $cart_items) {
     $client = commerce_taxcloud_client();
     $params = new \TaxCloud\Request\Returned(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'), $order_id, $cart_items, date("c"));
@@ -501,7 +518,7 @@ function commerce_taxcloud_tic_options() {
     if ($tic == 0) {
       $tic = (string) '00000';
     }
-    
+
     $tics[$tic] = $label . ' (TIC: ' . $tic . ')';
   }
 
