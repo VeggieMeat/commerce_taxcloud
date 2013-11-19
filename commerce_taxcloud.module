@@ -221,7 +221,8 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
         $destination = $client->VerifyAddress($VerifyAddress);
       }
       catch (Exception $e) {
-        watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
+      drupal_set_message(check_plain($e->getMessage()), 'error');
+      watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
       }
     }
 
@@ -292,6 +293,7 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
       $order_info['tax_amount'] = $lookup_response[$order_info['order_id']];
     }
     catch (Exception $e) {
+      drupal_set_message(check_plain($e->getMessage()), 'error');
       watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
     }
   }
@@ -386,6 +388,7 @@ function commerce_taxcloud_get_tics() {
       $return = $client->GetTICs($params);
     }
     catch (Exception $e) {
+      drupal_set_message(check_plain($e->getMessage()), 'error');
       watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
       $return = array();
     }
@@ -409,6 +412,7 @@ function commerce_taxcloud_get_tic_groups() {
       $return = $client->GetTICGroups($params);
     }
     catch (Exception $e) {
+      drupal_set_message(check_plain($e->getMessage()), 'error');
       watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
       $return = array();
     }
@@ -432,6 +436,7 @@ function commerce_taxcloud_get_tics_by_group($group) {
       $return = $client->GetTICByGroup($params);
     }
     catch (Exception $e) {
+      drupal_set_message(check_plain($e->getMessage()), 'error');
       watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
       $return = array();
     }
@@ -472,6 +477,7 @@ function commerce_taxcloud_authorize($order_wrapper) {
     $return = $client->Authorized($params);
   }
   catch (Exception $e) {
+    drupal_set_message(check_plain($e->getMessage()), 'error');
     watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
   }
 }
@@ -486,6 +492,7 @@ function commerce_taxcloud_capture($order_id) {
     $return = $client->Captured($params);
   }
   catch (Exception $e) {
+    drupal_set_message(check_plain($e->getMessage()), 'error');
     watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
   }
 }
@@ -522,6 +529,7 @@ function commerce_taxcloud_authorize_with_capture($order_wrapper) {
     $return = $client->Authorized($params);
   }
   catch (Exception $e) {
+    drupal_set_message(check_plain($e->getMessage()), 'error');
     watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
   }
 }
@@ -556,6 +564,7 @@ function commerce_taxcloud_returned($line_items) {
       $return = $client->Returned($params);
     }
     catch (Exception $e) {
+      drupal_set_message(check_plain($e->getMessage()), 'error');
       watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
     }
   }
