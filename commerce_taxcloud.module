@@ -212,15 +212,20 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
     if ($shipping_address_wrapper->commerce_customer_address->premise->value()) {
       $destination->setAddress2($shipping_address_wrapper->commerce_customer_address->premise->value());
     }
-    // Verify address.
-    $VerifyAddress = new \TaxCloud\Request\VerifyAddress(variable_get('commerce_taxcloud_usps_id'), $destination);
-    $verified_address = $client->VerifyAddress($VerifyAddress);
 
-    if ($verified_address->getVerifyAddressResult()->getErrNumber() == 0) {
-      $destination = $verified_address->getVerifyAddressResult()->getAddress();
+    // Verify address with USPS ID if set.
+    if (!empty(variable_get('commerce_taxcloud_usps_id'))) {
+      $VerifyAddress = new \TaxCloud\Request\VerifyAddress(variable_get('commerce_taxcloud_usps_id'), $destination);
+
+      try {
+        $destination = $client->VerifyAddress($VerifyAddress);
+      }
+      catch (Exception $e) {
+        watchdog('commerce_taxcloud', $e->getMessage(), WATCHDOG_ERROR);
+      }
     }
 
-    // Allow other modules to alter the destination address. Foe example, this
+    // Allow other modules to alter the destination address. For example, this
     // might be used if shipping to multiple locations where different tax
     // rules may apply, or overriding the destination for in-store pickup.
     $context = array(
@@ -243,7 +248,7 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
 
     // Allow other modules to alter the origin address. For example, this might
     // be used if selling from multiple locations where different tax rules may
-    // apply, or for ensuring that the correct location is show for accounting
+    // apply, or for ensuring that the correct location is shown for accounting
     // purposes.
     $context = array(
       'line_item_wrapper' => clone $line_item_wrapper,
@@ -277,8 +282,13 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
       $order_info['destination']
     );
 
-    $lookup_response = $client->Lookup($lookup);
-    $order_info['tax_amount']= $lookup_response[$order_info['order_id']];
+    try {
+      $lookup_response = $client->Lookup($lookup);
+      $order_info['tax_amount'] = $lookup_response[$order_info['order_id']];
+    }
+    catch (Exception $e) {
+      watchdog('commerce_taxcloud', $e->getMessage(), WATCHDOG_ERROR);
+    }
   }
 
   if (isset($order_info['tax_amount'][$line_item_wrapper->line_item_id->value()])) {
@@ -367,7 +377,13 @@ function commerce_taxcloud_get_tics() {
   if (!isset($return)) {
     $client = commerce_taxcloud_client();
     $params = new \TaxCloud\Request\GetTICs(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'));
-    $return = $client->GetTICs($params);
+
+    try {
+      $return = $client->GetTICs($params);
+    }
+    catch (Exception $e) {
+      watchdog('commerce_taxcloud', $e->getMessage(), WATCHDOG_ERROR);
+    }
   }
 
   return $return;
@@ -384,7 +400,13 @@ function commerce_taxcloud_get_tic_groups() {
   if (!isset($return)) {
     $client = commerce_taxcloud_client();
     $params = new \TaxCloud\Request\GetTICGroups(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'));
-    $return = $client->GetTICGroups($params);
+
+    try {
+      $return = $client->GetTICGroups($params);
+    }
+    catch (Exception $e) {
+      watchdog('commerce_taxcloud', $e->getMessage(), WATCHDOG_ERROR);
+    }
   }
 
   return $return;
@@ -393,7 +415,7 @@ function commerce_taxcloud_get_tic_groups() {
 /**
  * Get Taxability Information Codes by Group.
  *
- * @return
+ * @return array
  *   Keyed by TIC
  */
 function commerce_taxcloud_get_tics_by_group($group) {
@@ -401,7 +423,13 @@ function commerce_taxcloud_get_tics_by_group($group) {
   if (!isset($return)) {
     $client = commerce_taxcloud_client();
     $params = new \TaxCloud\Request\GetTICsByGroup(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'), $group);
-    $return = $client->GetTICByGroup($params);
+
+    try {
+      $return = $client->GetTICByGroup($params);
+    }
+    catch (Exception $e) {
+      watchdog('commerce_taxcloud', $e->getMessage(), WATCHDOG_ERROR);
+    }
   }
 
   return $return;
@@ -435,7 +463,13 @@ function commerce_taxcloud_authorize($order_wrapper) {
 
   $client = commerce_taxcloud_client();
   $params = new \TaxCloud\Request\Authorized(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'), $customer_id, $order_id, $cart_items, $order_id, date("c"));
-  $return = $client->Authorized($params);
+
+  try {
+    $return = $client->Authorized($params);
+  }
+  catch (Exception $e) {
+    watchdog('commerce_taxcloud', $e->getMessage(), WATCHDOG_ERROR);
+  }
 }
 
 /**
@@ -444,7 +478,13 @@ function commerce_taxcloud_authorize($order_wrapper) {
 function commerce_taxcloud_capture($order_id) {
   $client = commerce_taxcloud_client();
   $params = new \TaxCloud\Request\Captured(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'), $order_id);
-  $return = $client->Captured($params);
+
+  try {
+    $return = $client->Captured($params);
+  }
+  catch (Exception $e) {
+    watchdog('commerce_taxcloud', $e->getMessage(), WATCHDOG_ERROR);
+  }
 }
 
 /**
@@ -475,7 +515,13 @@ function commerce_taxcloud_authorize_with_capture($order_wrapper) {
 
   $client = commerce_taxcloud_client();
   $params = new \TaxCloud\Request\AuthorizedWithCapture(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'), $customer_id, $order_id, $cart_items, $order_id, date("c"), date("c"));
-  $return = $client->Authorized($params);
+
+  try {
+    $return = $client->Authorized($params);
+  }
+  catch (Exception $e) {
+    watchdog('commerce_taxcloud', $e->getMessage(), WATCHDOG_ERROR);
+  }
 }
 
 /**
@@ -504,7 +550,13 @@ function commerce_taxcloud_returned($line_items) {
   foreach ($returns as $order_id => $cart_items) {
     $client = commerce_taxcloud_client();
     $params = new \TaxCloud\Request\Returned(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'), $order_id, $cart_items, date("c"));
-    $return = $client->Returned($params);
+
+    try {
+      $return = $client->Returned($params);
+    }
+    catch (Exception $e) {
+      watchdog('commerce_taxcloud', $e->getMessage(), WATCHDOG_ERROR);
+    }
   }
 }
 
