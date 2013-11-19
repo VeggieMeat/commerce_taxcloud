@@ -36,7 +36,8 @@ function commerce_taxcloud_permission() {
  */
 function commerce_taxcloud_menu() {
   $items['admin/config/services/taxcloud'] = array(
-    'title' => 'TaxCloud Settings',
+    'title' => 'TaxCloud',
+    'description' => 'Configure settings for using TaxCloud to calculate Sales Taxes.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_taxcloud_admin_form'),
     'access arguments' => array('administer taxcloud settings'),
@@ -46,6 +47,7 @@ function commerce_taxcloud_menu() {
 
   $items['admin/config/services/taxcloud/line-items'] = array(
     'title' => 'TaxCloud Line Item Settings',
+    'description' => 'Configure which tax codes apply to which line item types.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_taxcloud_admin_line_item_form'),
     'access arguments' => array('administer taxcloud settings'),
