@@ -276,6 +276,11 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
       }
     }
 
+    // Bail out if there are no items to process.
+    if (empty($order_info['cart_items'])) {
+      return 0;
+    }
+
     try {
       $lookup = new \TaxCloud\Request\Lookup(
         variable_get('commerce_taxcloud_api_id'),
