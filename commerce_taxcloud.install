@@ -1,11 +1,51 @@
 <?php
 
 /**
+ * @file
+ * Commerce TaxCloud requirements, installation, and uninstallation.
+ */
+
+/**
  * Implements hook_requirements().
  */
 function commerce_taxcloud_requirements() {
   $api_id = variable_get('commerce_taxcloud_api_id');
   $api_key = variable_get('commerce_taxcloud_api_key');
+
+  // Find Commerce TaxCloud capture actions.
+  $commerce_taxcloud_actions = array('commerce_taxcloud_action_capture', 'commerce_taxcloud_action_authorize_capture');
+  $rules_cache = rules_get_cache();
+  foreach ($rules_cache['action_info'] as $action_name => $action_info) {
+    if ($action_info['module'] == 'commerce_taxcloud') {
+      $commerce_taxcloud_actions[] = $action_name;
+    }
+  }
+
+  // Check if Commerce TaxCloud capture actions are enabled.
+  $actions_enabled = FALSE;
+  $rules = rules_config_load_multiple(FALSE);
+  foreach ($rules as $rule) {
+    if (get_class($rule) == 'RulesReactionRule') {
+      foreach ($rule->actions() as $action) {
+        if (get_class($action) == 'RulesAction') {
+          if (in_array($action->getElementName(), $commerce_taxcloud_actions) && $rule->active == 1) {
+            $actions_enabled = TRUE;
+          }
+        }
+      }
+    }
+  }
+
+  // Allow other modules to override this requirement assuming that they are
+  // implementing actions in compliance with TaxCloud's policies.
+  foreach (module_implements('commerce_taxcloud_actions_enabled') as $module) {
+    if ($actions_enabled = TRUE) {
+      continue;
+    }
+    else {
+      $actions_enabled = module_invoke($module, 'commerce_taxcloud_actions_enabled');
+    }
+  }
 
   $t = get_t();
   $requirements = array();
@@ -15,23 +55,31 @@ function commerce_taxcloud_requirements() {
   if (!$info['loaded']) {
     $requirements['commerce_taxcloud'] = array(
       'severity' => REQUIREMENT_WARNING,
-      'title' => $t('PHP-TaxCloud Library'),
-      'value' => $t('Failed to load the PHP-Taxcloud library.'),
+      'title' => $t('Commerce TaxCloud Integration'),
+      'value' => $t('Failed to load the PHP-TaxCloud library.'),
       'description' => $t('Please make sure the PHP-TaxCloud library is installed in the libraries directory'),
     );
   }
-  else if (empty($api_id) || empty($api_key)) {
+  elseif (empty($api_id) || empty($api_key)) {
     $requirements['commerce_taxcloud'] = array(
       'severity' => REQUIREMENT_WARNING,
-      'title' => $t('PHP-TaxCloud Library'),
+      'title' => $t('Commerce TaxCloud Integration'),
       'value' => $t('API ID or API Key not set.'),
       'description' => $t('Please make sure to set the API ID and API Key for TaxCloud.'),
     );
   }
-   else {
+  elseif (!$actions_enabled) {
+    $requirements['commerce_taxcloud'] = array(
+      'severity' => REQUIREMENT_WARNING,
+      'title' => $t('Commerce TaxCloud Integration'),
+      'value' => $t('No actions are enabled.'),
+      'description' => $t('TaxCloud requires that transactions are captured. You cannot just use the service only for Lookups.'),
+    );
+  }
+  else {
     $requirements['commerce_taxcloud'] = array(
       'serverity' => REQUIREMENT_OK,
-      'title' => $t('PHP-TaxCloud Library'),
+      'title' => $t('Commerce TaxCloud Integration'),
       'value' => $t('OK'),
     );
   }
@@ -49,7 +97,7 @@ function commerce_taxcloud_schema() {
 }
 
 /**
- * Implements hook_uninstall()
+ * Implements hook_uninstall().
  */
 function commerce_taxcloud_uninstall() {
   variable_del('commerce_taxcloud_api_id');
