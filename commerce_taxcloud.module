@@ -221,8 +221,7 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
         $destination = $client->VerifyAddress($VerifyAddress);
       }
       catch (Exception $e) {
-      drupal_set_message(check_plain($e->getMessage()), 'error');
-      watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
+        watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
       }
     }
 
@@ -293,7 +292,6 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
       $order_info['tax_amount'] = $lookup_response[$order_info['order_id']];
     }
     catch (Exception $e) {
-      drupal_set_message(check_plain($e->getMessage()), 'error');
       watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
     }
   }
@@ -477,7 +475,7 @@ function commerce_taxcloud_authorize($order_wrapper) {
     $return = $client->Authorized($params);
   }
   catch (Exception $e) {
-    drupal_set_message(check_plain($e->getMessage()), 'error');
+    drupal_set_message(t('An error occurred processing your transaction. Please contact the site administrator.'), 'error');
     watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
   }
 }
@@ -529,7 +527,7 @@ function commerce_taxcloud_authorize_with_capture($order_wrapper) {
     $return = $client->Authorized($params);
   }
   catch (Exception $e) {
-    drupal_set_message(check_plain($e->getMessage()), 'error');
+    drupal_set_message(t('An error occurred processing your transaction. Please contact the site administrator.'), 'error');
     watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
   }
 }
@@ -564,7 +562,7 @@ function commerce_taxcloud_returned($line_items) {
       $return = $client->Returned($params);
     }
     catch (Exception $e) {
-      drupal_set_message(check_plain($e->getMessage()), 'error');
+      drupal_set_message(t('An error occurred processing your transaction. Please contact the site administrator.'), 'error');
       watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
     }
   }
