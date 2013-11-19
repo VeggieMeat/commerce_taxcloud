@@ -8,7 +8,7 @@ function commerce_taxcloud_rules_action_info() {
   $actions = array();
 
   $actions['commerce_taxcloud_action_authorize'] = array(
-    'label' => t('Inform TaxCloud that we have successfully authorized the payment for the taxes.'),
+    'label' => t('Authorize sales tax.'),
     'parameter' => array(
       'commerce_order' => array(
         'type' => 'commerce_order',
@@ -19,7 +19,7 @@ function commerce_taxcloud_rules_action_info() {
   );
 
   $actions['commerce_taxcloud_action_capture'] = array(
-    'label' => t('Inform TaxCloud that we have successfully captured the payment for the taxes.'),
+    'label' => t('Capture sales tax.'),
     'parameter' => array(
       'commerce_order' => array(
         'type' => 'commerce_order',
@@ -30,7 +30,7 @@ function commerce_taxcloud_rules_action_info() {
   );
 
   $actions['commerce_taxcloud_action_authorize_capture'] = array(
-    'label' => t('Inform Tax Cloud that we have successfully authorized and captured the payment for the taxes.'),
+    'label' => t('Authorize and capture sales tax.'),
     'parameter' => array(
       'commerce_order' => array(
         'type' => 'commerce_order',
