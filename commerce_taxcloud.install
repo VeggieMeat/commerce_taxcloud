@@ -15,11 +15,6 @@ function commerce_taxcloud_requirements() {
   // Find Commerce TaxCloud capture actions.
   $commerce_taxcloud_actions = array('commerce_taxcloud_action_capture', 'commerce_taxcloud_action_authorize_capture');
   $rules_cache = rules_get_cache();
-  foreach ($rules_cache['action_info'] as $action_name => $action_info) {
-    if ($action_info['module'] == 'commerce_taxcloud') {
-      $commerce_taxcloud_actions[] = $action_name;
-    }
-  }
 
   // Check if Commerce TaxCloud capture actions are enabled.
   $actions_enabled = FALSE;
