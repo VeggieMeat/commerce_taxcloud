@@ -214,8 +214,9 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
     }
 
     // Verify address with USPS ID if set.
-    if (!empty(variable_get('commerce_taxcloud_usps_id'))) {
-      $VerifyAddress = new \TaxCloud\Request\VerifyAddress(variable_get('commerce_taxcloud_usps_id'), $destination);
+    $usps_id = variable_get('commerce_taxcloud_usps_id');
+    if ($usps_id) {
+      $VerifyAddress = new \TaxCloud\Request\VerifyAddress($usps_id, $destination);
 
       try {
         $destination = $client->VerifyAddress($VerifyAddress);
