@@ -4,5 +4,6 @@ package = Commerce (contrib)
 core = 7.x
 
 ; Dependencies
-dependencies[] = commerce_tax
 dependencies[] = libraries
+dependencies[] = commerce_shipping
+dependencies[] = commerce_tax
