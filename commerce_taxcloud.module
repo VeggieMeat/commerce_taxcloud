@@ -181,24 +181,24 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
     }
 
     $zip = explode('-', $shipping_address_wrapper->commerce_customer_address->postal_code->value());
-    if (isset($zip[1])) {
-      $destination->setZip4($zip[1]);
-    }
-    else {
-      $zip[1] = '';
-    }
+    $zip[1] = isset($zip[1]) ? $zip[1] : '';
 
-    $destination = new \TaxCloud\Address(
-      $shipping_address_wrapper->commerce_customer_address->thoroughfare->value(),
-      '',
-      $shipping_address_wrapper->commerce_customer_address->locality->value(),
-      $shipping_address_wrapper->commerce_customer_address->administrative_area->value(),
-      $zip[0],
-      $zip[1]
-    );
+    try {
+      $destination = new \TaxCloud\Address(
+        $shipping_address_wrapper->commerce_customer_address->thoroughfare->value(),
+        '',
+        $shipping_address_wrapper->commerce_customer_address->locality->value(),
+        $shipping_address_wrapper->commerce_customer_address->administrative_area->value(),
+        $zip[0],
+        $zip[1]
+      );
 
-    if ($shipping_address_wrapper->commerce_customer_address->premise->value()) {
-      $destination->setAddress2($shipping_address_wrapper->commerce_customer_address->premise->value());
+      if ($shipping_address_wrapper->commerce_customer_address->premise->value()) {
+        $destination->setAddress2($shipping_address_wrapper->commerce_customer_address->premise->value());
+      }
+    }
+    catch (Exception $e) {
+      watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
     }
 
     // Verify address with USPS ID if set.
@@ -221,18 +221,26 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
     );
     drupal_alter('commerce_taxcloud_destination', $destination, $context);
 
+    if (!isset($destination)) {
+      return 0;
+    }
     $order_info['destination'] = $destination;
 
     // Set origin address.
-    $zip = explode('-', variable_get('commerce_taxcloud_zip'));
-    $origin = new \TaxCloud\Address(
-      variable_get('commerce_taxcloud_address1'),
-      variable_get('commerce_taxcloud_address2'),
-      variable_get('commerce_taxcloud_city'),
-      variable_get('commerce_taxcloud_state'),
-      $zip[0],
-      $zip[1]
-    );
+    try {
+      $zip = explode('-', variable_get('commerce_taxcloud_zip'));
+      $origin = new \TaxCloud\Address(
+        variable_get('commerce_taxcloud_address1'),
+        variable_get('commerce_taxcloud_address2'),
+        variable_get('commerce_taxcloud_city'),
+        variable_get('commerce_taxcloud_state'),
+        $zip[0],
+        $zip[1]
+      );
+    }
+    catch (Exception $e) {
+      watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
+    }
 
     // Allow other modules to alter the origin address. For example, this might
     // be used if selling from multiple locations where different tax rules may
@@ -243,6 +251,9 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
     );
     drupal_alter('commerce_taxcloud_origin', $origin, $context);
 
+    if (!isset($origin)) {
+      return 0;
+    }
     $order_info['origin'] = $origin;
 
     $order_info['cart_items'] = array();
