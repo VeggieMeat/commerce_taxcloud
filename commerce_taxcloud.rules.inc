@@ -57,7 +57,8 @@ function commerce_taxcloud_action_authorize($order) {
  * taxes.
  */
 function commerce_taxcloud_action_capture($order) {
-  commerce_taxcloud_authorize_with_capture($order->order_id);
+  $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+  commerce_taxcloud_authorize_with_capture($order_wrapper);
 }
 
 /**
