@@ -14,6 +14,8 @@ function commerce_taxcloud_requirements() {
 
   // Find Commerce TaxCloud capture actions.
   $commerce_taxcloud_actions = array('commerce_taxcloud_action_capture', 'commerce_taxcloud_action_authorize_capture');
+  drupal_alter('commerce_taxcloud_actions', $commerce_taxcloud_actions);
+
   $rules_cache = rules_get_cache();
 
   // Check if Commerce TaxCloud capture actions are enabled.
@@ -28,17 +30,6 @@ function commerce_taxcloud_requirements() {
           }
         }
       }
-    }
-  }
-
-  // Allow other modules to override this requirement assuming that they are
-  // implementing actions in compliance with TaxCloud's policies.
-  foreach (module_implements('commerce_taxcloud_actions_enabled') as $module) {
-    if ($actions_enabled = TRUE) {
-      continue;
-    }
-    else {
-      $actions_enabled = module_invoke($module, 'commerce_taxcloud_actions_enabled');
     }
   }
 
