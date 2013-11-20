@@ -196,5 +196,10 @@ function commerce_taxcloud_admin_line_item_form_submit($form, &$form_state) {
         drupal_set_message(t('TaxCloud has been disabled on the %type line item type.', array('%type' => $type)));
       }
     }
+    elseif ($values['enabled'] && ($instance['default_value'][0]['value'] != $values['default_tic'])) {
+      $instance['default_value'][0]['value'] = $values['default_tic'];
+      field_update_instance($instance);
+      drupal_set_message(t('Default Taxability Information Code for %type as been updated.', array('%type' => $type)));
+    }
   }
 }

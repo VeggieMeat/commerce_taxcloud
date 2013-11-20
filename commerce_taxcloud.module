@@ -436,18 +436,15 @@ function commerce_taxcloud_get_tic_groups() {
  *   Keyed by TIC
  */
 function commerce_taxcloud_get_tics_by_group($group) {
-  $return = &drupal_static(__FUNCTION__);
-  if (!isset($return)) {
-    try {
-      $client = commerce_taxcloud_client();
-      $params = new \TaxCloud\Request\GetTICsByGroup(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'), $group);
-      $return = $client->GetTICByGroup($params);
-    }
-    catch (Exception $e) {
-      drupal_set_message(check_plain($e->getMessage()), 'error');
-      watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
-      $return = array();
-    }
+  try {
+    $client = commerce_taxcloud_client();
+    $params = new \TaxCloud\Request\GetTICsByGroup(variable_get('commerce_taxcloud_api_id'), variable_get('commerce_taxcloud_api_key'), $group);
+    $return = $client->GetTICsByGroup($params);
+  }
+  catch (Exception $e) {
+    drupal_set_message(check_plain($e->getMessage()), 'error');
+    watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
+    $return = array();
   }
 
   return $return;
@@ -582,21 +579,23 @@ function commerce_taxcloud_returned($line_items) {
  * Set options for Taxability Information Codes field.
  */
 function commerce_taxcloud_tic_options() {
-  $tics = commerce_taxcloud_get_tics();
+  $options = array();
+  $options['00000'] = 'General Goods and Services (TIC: 00000)';
 
-  // Let's make the TIC part of the label.
-  foreach ($tics as $tic => $label) {
-    // Ensure that "0" becomes "00000"
-    if ($tic == 0) {
-      $tic = (string) '00000';
+  $groups = commerce_taxcloud_get_tic_groups();
+  foreach ($groups as $gid => $group) {
+    $tics = commerce_taxcloud_get_tics_by_group($gid);
+
+    // Let's make the TIC part of the label.
+    foreach ($tics as $tic => $label) {
+      $tics[$tic] = $label . ' (TIC: ' . $tic . ')';
     }
 
-    $tics[$tic] = $label . ' (TIC: ' . $tic . ')';
+    ksort($tics);
+    $options[$group] = $tics;
   }
 
-  ksort($tics);
-
-  return $tics;
+  return $options;
 }
 
 /**
