@@ -1,9 +1,7 @@
 {
   "name": "drupal/commerce_taxcloud",
   "type": "drupal-module",
-  "description": "The Commerce TaxCloud module enables your Drupal Commerce store to calculate
-appropriate tax rates for the line items in a shopping cart using TaxCloud's
-API.",
+  "description": "The Commerce TaxCloud module enables your Drupal Commerce store to calculate appropriate tax rates for the line items in a shopping cart using TaxCloud's API.",
   "license": "GPL-2.0+",
   "authors": [
     {
