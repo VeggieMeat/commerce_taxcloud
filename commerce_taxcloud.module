@@ -51,8 +51,13 @@ function commerce_taxcloud_menu() {
     'type' => MENU_LOCAL_TASK,
   );
 
+  $items['admin/commerce/config/taxes/taxcloud/api'] = array(
+    'title' => 'Credentials',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
   $items['admin/commerce/config/taxes/taxcloud/line-items'] = array(
-    'title' => 'TaxCloud Line Item Settings',
+    'title' => 'Line Item TICs',
     'description' => 'Configure which tax codes apply to which line item types.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_taxcloud_admin_line_item_form'),
