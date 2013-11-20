@@ -63,7 +63,7 @@ function commerce_taxcloud_menu() {
     'page arguments' => array('commerce_taxcloud_admin_line_item_form'),
     'access arguments' => array('administer taxcloud settings'),
     'file' => 'commerce_taxcloud.admin.inc',
-    'type' => MENU_LOCAL_ACTION,
+    'type' => MENU_LOCAL_TASK,
   );
 
   return $items;
