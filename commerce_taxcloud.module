@@ -1,6 +1,12 @@
 <?php
 
 /**
+ * @file
+ * Integrates Commerce Tax with TaxCloud API for calculating applicable
+ * sales tax.
+ */
+
+/**
  * Implements hook_libraries_info().
  */
 function commerce_taxcloud_libraries_info() {
@@ -205,8 +211,8 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
     $usps_id = variable_get('commerce_taxcloud_usps_id');
     if ($usps_id) {
       try {
-        $VerifyAddress = new \TaxCloud\Request\VerifyAddress($usps_id, $destination);
-        $destination = $client->VerifyAddress($VerifyAddress);
+        $verify_address = new \TaxCloud\Request\VerifyAddress($usps_id, $destination);
+        $destination = $client->VerifyAddress($verify_address);
       }
       catch (Exception $e) {
         watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ * Rules integration for Commerce TaxCloud.
+ */
 
 /**
  * Implements hook_rules_action_info().

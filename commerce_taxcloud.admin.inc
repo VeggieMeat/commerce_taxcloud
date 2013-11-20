@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains forms and form handlers for Commerce TaxCloud.
+ */
+
+/**
  * Generates administrative form.
  */
 function commerce_taxcloud_admin_form($form, &$form_state) {
@@ -9,7 +14,7 @@ function commerce_taxcloud_admin_form($form, &$form_state) {
 
   $form['commerce_taxcloud_api_id'] = array(
     '#type' => 'textfield',
-    '#title' => t('Taxcloud API ID'),
+    '#title' => t('TaxCloud API ID'),
     '#description' => t('This information can be found in the TaxCloud <a href="@link">Websites</a> section.', array('@link' => 'https://taxcloud.net/account/websites/')),
     '#default_value' => variable_get('commerce_taxcloud_api_id', ''),
     '#size' => 60,
@@ -18,7 +23,7 @@ function commerce_taxcloud_admin_form($form, &$form_state) {
   );
   $form['commerce_taxcloud_api_key'] = array(
     '#type' => 'textfield',
-    '#title' => t('Taxcloud API Key'),
+    '#title' => t('TaxCloud API Key'),
     '#default_value' => variable_get('commerce_taxcloud_api_key', ''),
     '#size' => 60,
     '#maxlength' => 255,
