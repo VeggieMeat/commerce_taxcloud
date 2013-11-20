@@ -103,7 +103,8 @@ function commerce_taxcloud_commerce_tax_rate_info() {
 /**
  * Get a TaxCloud client.
  *
- * @return obj \TaxCloud\Client
+ * @return \TaxCloud\Client
+ *   Returns a Client instance for API operations.
  */
 function commerce_taxcloud_client() {
   $client = &drupal_static(__FUNCTION__);
@@ -315,8 +316,7 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
 }
 
 /**
- * Creates a required instance of a Taxability Information Code (TIC) field on
- * the specified bundle.
+ * Creates a required instance of a Taxability Information Code (TIC) field.
  *
  * @param string $field_name
  *   The name of the field; if it already exists, a new instance of the
@@ -579,20 +579,23 @@ function commerce_taxcloud_returned($line_items) {
  * Set options for Taxability Information Codes field.
  */
 function commerce_taxcloud_tic_options() {
-  $options = array();
-  $options['00000'] = 'General Goods and Services (TIC: 00000)';
+  $options = &drupal_static(__FUNCTION__);
+  if (!isset($options)) {
+    $options = array();
+    $options['00000'] = 'General Goods and Services (TIC: 00000)';
 
-  $groups = commerce_taxcloud_get_tic_groups();
-  foreach ($groups as $gid => $group) {
-    $tics = commerce_taxcloud_get_tics_by_group($gid);
+    $groups = commerce_taxcloud_get_tic_groups();
+    foreach ($groups as $gid => $group) {
+      $tics = commerce_taxcloud_get_tics_by_group($gid);
 
-    // Let's make the TIC part of the label.
-    foreach ($tics as $tic => $label) {
-      $tics[$tic] = $label . ' (TIC: ' . $tic . ')';
+      // Let's make the TIC part of the label.
+      foreach ($tics as $tic => $label) {
+        $tics[$tic] = $label . ' (TIC: ' . $tic . ')';
+      }
+
+      ksort($tics);
+      $options[$group] = $tics;
     }
-
-    ksort($tics);
-    $options[$group] = $tics;
   }
 
   return $options;
