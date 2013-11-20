@@ -71,7 +71,7 @@ function commerce_taxcloud_admin_form($form, &$form_state) {
   $form['commerce_taxcloud_store']['commerce_taxcloud_state'] = array(
     '#type' => 'textfield',
     '#title' => t('State'),
-    '#description' => t('The two letter abbreivation for your state, e.g. OK, NY, etc.'),
+    '#description' => t('The two letter abbreviation for your state, for example, OK, NY, etc.'),
     '#default_value' => variable_get('commerce_taxcloud_state', ''),
     '#size' => 5,
     '#maxlength' => 2,
@@ -80,7 +80,7 @@ function commerce_taxcloud_admin_form($form, &$form_state) {
   $form['commerce_taxcloud_store']['commerce_taxcloud_zip'] = array(
     '#type' => 'textfield',
     '#title' => t('Zip'),
-    '#description' => t('Full 9 digit zip code separated by a hyphen provided by TaxCloud, e.g. 12345-6789.'),
+    '#description' => t('Full 9 digit zip code separated by a hyphen provided by TaxCloud, for example, 12345-6789.'),
     '#default_value' => variable_get('commerce_taxcloud_zip', ''),
     '#size' => 12,
     '#maxlength' => 10,
@@ -89,12 +89,15 @@ function commerce_taxcloud_admin_form($form, &$form_state) {
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Submit'),
+    '#value' => t('Save settings'),
   );
 
   return $form;
 }
 
+/**
+ * Submit handler for commerce_taxcloud_admin_form.
+ */
 function commerce_taxcloud_admin_form_submit($form, &$form_state) {
   variable_set('commerce_taxcloud_api_id', $form_state['values']['commerce_taxcloud_api_id']);
   variable_set('commerce_taxcloud_api_key', $form_state['values']['commerce_taxcloud_api_key']);
@@ -106,6 +109,9 @@ function commerce_taxcloud_admin_form_submit($form, &$form_state) {
   variable_set('commerce_taxcloud_zip', $form_state['values']['commerce_taxcloud_store']['commerce_taxcloud_zip']);
 }
 
+/**
+ * Form to assign Taxability Information Codes to line items types.
+ */
 function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
   $field_name = 'commerce_taxcloud_tic';
   $field = field_info_field($field_name);
@@ -155,7 +161,7 @@ function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Submit'),
+    '#value' => t('Save settings'),
   );
 
   if (!empty($form_state['commerce_taxcloud']['delete_instances'])) {
@@ -166,6 +172,9 @@ function commerce_taxcloud_admin_line_item_form($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Submit handler for commerce_taxcloud_admin_line_item_form.
+ */
 function commerce_taxcloud_admin_line_item_form_submit($form, &$form_state) {
   $form_state['commerce_taxcloud']['delete_instances'] = array();
   foreach ($form_state['values']['line_item_types'] as $type => $values) {
