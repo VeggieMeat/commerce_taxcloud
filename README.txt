@@ -24,3 +24,7 @@ Configure basic settings at admin/commerce/config/taxes/taxcloud.
 
 Configure Taxability Information Codes per line item type at
 admin/commerce/config/taxes/taxcloud/line-items.
+
+You must also enable at least one of the capture actions and the return action
+to comply with TaxCloud's API usage policy. You may not use the service simply
+to perform lookups.
