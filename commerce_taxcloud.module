@@ -220,6 +220,10 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
         $verify_address = new \TaxCloud\Request\VerifyAddress($usps_id, $destination);
         $destination = $client->VerifyAddress($verify_address);
       }
+      // Bail out if we can't authenticate with USPS.
+      catch (\TaxCloud\Exceptions\USPSIDException $e) {
+        watchdog('commerce_taxcloud', 'USPS: ' . $e->getMessage(), array(), WATCHDOG_ERROR);
+      }
       catch (Exception $e) {
         watchdog('commerce_taxcloud', $e->getMessage(), array(), WATCHDOG_ERROR);
       }
