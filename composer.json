@@ -11,6 +11,6 @@
     }
   ],
   "require": {
-    "vmdoh/php-taxcloud": "dev-master"
+    "vmdoh/php-taxcloud": "0.1.*"
   }
 }
