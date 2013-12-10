@@ -13,8 +13,8 @@ function commerce_taxcloud_libraries_info() {
   $libraries['php-taxcloud'] = array(
     'name' => 'PHP-TaxCloud',
     'vendor url' => 'https://github.com/VMdoh/php-taxcloud',
-    'download url' => 'https://github.com/VMdoh/php-taxcloud/archive/master.tar.gz',
-    'version' => 'dev',
+    'download url' => 'https://github.com/VMdoh/php-taxcloud/archive/v0.1.1.tar.gz',
+    'version' => '0.1.1',
     'files' => array(
       'php' => array(
         'lib/php-taxcloud.php',
