@@ -321,7 +321,7 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
   }
 
   if (isset($order_info['tax_amount'][$line_item_wrapper->line_item_id->value()])) {
-    cache_set($line_item_wrapper->line_item_id->value(), $order_info['tax_amount'][$line_item_wrapper->line_item_id->value()], 'cache_commerce_taxcloud');
+    cache_set($line_item_wrapper->line_item_id->value(), $order_info['tax_amount'][$line_item_wrapper->line_item_id->value()], 'cache_commerce_taxcloud', REQUEST_TIME + 3600);
     return $order_info['tax_amount'][$line_item_wrapper->line_item_id->value()];
   }
   else {
