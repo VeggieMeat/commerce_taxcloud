@@ -176,6 +176,10 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
   // just return the value from the cached array.
   $order_info = &drupal_static(__FUNCTION__ . '_order_' . $line_item_wrapper->order_id->value());
   if (!isset($order_info)) {
+    // Attempt to get order info from the cache.
+    if ($cached_tax_amount = cache_get($line_item_wrapper->line_item_id->value(), 'cache_commerce_taxcloud')) {
+      return $cached_tax_amount;
+    }
     $order_info['order_id'] = $line_item_wrapper->order_id->value();
 
     $order = commerce_order_load($order_info['order_id']);
@@ -317,6 +321,7 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
   }
 
   if (isset($order_info['tax_amount'][$line_item_wrapper->line_item_id->value()])) {
+    cache_set($line_item_wrapper->line_item_id->value(), $order_info['tax_amount'][$line_item_wrapper->line_item_id->value()], 'cache_commerce_taxcloud');
     return $order_info['tax_amount'][$line_item_wrapper->line_item_id->value()];
   }
   else {
@@ -643,5 +648,14 @@ function commerce_taxcloud_tic_init($type, $tic) {
     $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
     $line_item_wrapper->commerce_taxcloud_tic = $tic;
     $line_item_wrapper->save();
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function commerce_taxcloud_entity_update($entity, $type) {
+  if ('commerce_line_item' == $type) {
+    cache_clear_all($entity->line_item_id, 'cache_commerce_taxcloud');
   }
 }
