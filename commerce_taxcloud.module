@@ -178,7 +178,7 @@ function commerce_taxcloud_lookup($line_item_wrapper) {
   if (!isset($order_info)) {
     // Attempt to get order info from the cache.
     if ($cached_tax_amount = cache_get($line_item_wrapper->line_item_id->value(), 'cache_commerce_taxcloud')) {
-      return $cached_tax_amount;
+      return $cached_tax_amount->data;
     }
     $order_info['order_id'] = $line_item_wrapper->order_id->value();
 
