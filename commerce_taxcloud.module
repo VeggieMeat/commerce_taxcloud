@@ -137,21 +137,23 @@ function commerce_taxcloud_client() {
  *   The tax price array or FALSE if the tax is already applied.
  */
 function commerce_taxcloud_sales_tax_calculate($tax_rate, $line_item_wrapper) {
-  // By default, do not duplicate a tax that's already on the line item.
-  if (!is_null($line_item_wrapper->commerce_unit_price->value()) &&
-    !commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), $tax_rate['price_component'])) {
-    // Lookup the tax rate for this line item.
-    $tax_rate['rate'] = commerce_taxcloud_lookup($line_item_wrapper);
-    // Calculate the tax amount.
-    $amount = $line_item_wrapper->commerce_unit_price->amount->value() * $tax_rate['rate'];
+  if ($line_item_wrapper->getIdentifier()) {
+    // By default, do not duplicate a tax that's already on the line item.
+    if (!is_null($line_item_wrapper->commerce_unit_price->value()) &&
+      !commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), $tax_rate['price_component'])) {
+      // Lookup the tax rate for this line item.
+      $tax_rate['rate'] = commerce_taxcloud_lookup($line_item_wrapper);
+      // Calculate the tax amount.
+      $amount = $line_item_wrapper->commerce_unit_price->amount->value() * $tax_rate['rate'];
 
-    return array(
-      'amount' => commerce_tax_rate_round_amount($tax_rate, $amount),
-      'currency_code' => $line_item_wrapper->commerce_unit_price->currency_code->value(),
-      'data' => array(
-        'tax_rate' => $tax_rate,
-      ),
-    );
+      return array(
+        'amount' => commerce_tax_rate_round_amount($tax_rate, $amount),
+        'currency_code' => $line_item_wrapper->commerce_unit_price->currency_code->value(),
+        'data' => array(
+          'tax_rate' => $tax_rate,
+        ),
+      );
+    }
   }
 
   return FALSE;
