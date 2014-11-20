@@ -597,8 +597,8 @@ function commerce_taxcloud_returned($line_items) {
 function commerce_taxcloud_tic_options() {
   $options = &drupal_static(__FUNCTION__);
   if (!isset($options)) {
-    if ($options = cache_get('tic_options', 'cache_commerce_taxcloud')) {
-      return $options;
+    if ($cached_options = cache_get('tic_options', 'cache_commerce_taxcloud')) {
+      return $cached_options->data;
     }
     $options = array();
     $options['00000'] = 'General Goods and Services (TIC: 00000)';
